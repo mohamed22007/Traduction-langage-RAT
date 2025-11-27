@@ -17,6 +17,19 @@ let rec analyse_tds_expression tds e =
    match e with
    | AstSyntax.Booleen (b) ->
       AstTds.Booleen (b)
+   | AstSyntax.AppelFonction (nom, exps) ->
+    begin match chercherGlobalement tds nom with
+    | None -> raise (IdentifiantNonDeclare nom)
+    | Some info ->
+        begin
+        match info_ast_to_info info with
+        | InfoFun _ ->
+            let new_exps = List.map (analyse_tds_expression tds) exps in
+            AstTds.AppelFonction(info, new_exps)
+        | _ ->
+            raise (MauvaiseUtilisationIdentifiant nom)
+        end
+    end
    | AstSyntax.Ident (i) ->
      begin
       (* faire la distinction si identifiant d'une var d'une const ou d'une fonction*)
@@ -168,6 +181,7 @@ and analyse_tds_bloc tds oia li =
 en une fonction de type AstTds.fonction *)
 (* Erreur si mauvaise utilisation des identifiants *)
 let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li))  =
+
  
   
 
