@@ -1,1 +1,1 @@
-ast.pp.ml: Ppx_expect_runtime Ppx_inline_test_lib Tds Type
+ast.pp.ml: Expect_test_collector Ppx_inline_test_lib Tds Type

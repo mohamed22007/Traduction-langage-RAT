@@ -180,9 +180,28 @@ and analyse_tds_bloc tds oia li =
 (* Vérifie la bonne utilisation des identifiants et tranforme la fonction
 en une fonction de type AstTds.fonction *)
 (* Erreur si mauvaise utilisation des identifiants *)
-let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li))  =
+let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li))  = 
+  begin 
+  match chercherLocalement maintds n with 
+    | Some _ -> raise (DoubleDeclaration n)
+    | None -> let info = InfoFun(n,Undefined,[]) in 
+              let nv_info = info_to_info_ast info in 
+              ajouter maintds n nv_info ;
+              let fil = creerTDSFille maintds in
 
- 
+              let nlp = List.map (fun(typ, nom) -> 
+                    match chercherLocalement fil nom with
+                     | Some _ -> raise (DoubleDeclaration nom)
+                      | None -> let info_var = info_to_info_ast (InfoVar(nom, typ , 0 , "")) in 
+                      ajouter fil nom info_var ;
+                      (typ , info_var)
+                      
+              ) lp     
+              in 
+
+              let nli = analyse_tds_bloc fil (Some nv_info) li in
+              AstTds.Fonction(t, nv_info, nlp, nli)
+  end 
   
 
 (* analyser : AstSyntax.programme -> AstTds.programme *)
