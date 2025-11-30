@@ -35,7 +35,10 @@ let rec analyse_tds_expression tds e =
       (* faire la distinction si identifiant d'une var d'une const ou d'une fonction*)
       match chercherGlobalement tds i with 
         | Some ia ->
-          AstTds.Ident(ia)
+            begin match info_ast_to_info ia with
+              | InfoFun _ -> raise (MauvaiseUtilisationIdentifiant i)
+              | _ -> AstTds.Ident ia 
+            end 
         | None -> 
            raise(IdentifiantNonDeclare i)
       end
