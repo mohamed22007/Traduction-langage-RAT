@@ -1,0 +1,16 @@
+# dune runtest tests/gestion_id
+# OCAMLPARAM: unset
+# Shared cache: enabled-except-user-rules
+# Shared cache location: /home/mohamed-abe/.cache/dune/db
+# Workspace root: /home/mohamed-abe/Bureau/Tarductionlanguage
+# Auto-detected concurrency: 8
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; instrument_with = []
+#  }
+$ /home/mohamed-abe/.opam/4.11.0/bin/ocamlc.opt -config > /tmp/dune_8ec330_output
