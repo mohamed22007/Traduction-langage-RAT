@@ -1,10 +1,12 @@
-(* Module de la passe de gestion des identifiants *)
-(* doit être conforme à l'interface Passe *)
+open Passe
 open Tds
 open Exceptions
 open Ast
 open Type
 
+
+type t1 = AstType.programme
+type t2 = AstPlacement.programme
 
 let rec analyse_placement_instruction i depl reg = 
   match i with
@@ -17,13 +19,12 @@ let rec analyse_placement_instruction i depl reg =
               | _ -> failwith "Error "
         end
     | AstType.Conditionnelle (c, t , e) ->
-        let (nt, _) = analyse_placement_bloc t depl reg in
-        let (ne, _) = analyse_placement_bloc e depl reg in
-
-        (AstPlacement.Conditionnelle(c,nt,ne), 0)
+      let bt = analyse_placement_bloc t depl reg in
+      let be = analyse_placement_bloc e depl reg in
+      (AstPlacement.Conditionnelle (c, bt, be), 0)
 
     | AstType.TantQue(c,b) ->
-        let (nb , _ )= analyse_placement_bloc b depl reg in 
+        let nb = analyse_placement_bloc b depl reg in 
         (AstPlacement.TantQue(c,nb), 0)
 
     | AstType.Retour(e, ia) ->
@@ -48,20 +49,33 @@ let rec analyse_placement_instruction i depl reg =
 
 
 and analyse_placement_bloc li depl reg =
-(*  List.fold_right (fun i (nli, tail ) -> let (ni, ti) = analyse_placement_instruction i depl reg in 
-                          (nli @ ni, tail + ti)) li ([], 0)
-*)
  match li with 
     | [] -> ([],0)
     | i :: q -> let (ni , ti) = analyse_placement_instruction i depl reg in
                 let (nq, tq) = analyse_placement_bloc q (depl + ti) reg in 
                 (ni :: nq, ti + tq)
 
-let analyse (AstType.Programme (fonctions, prog)) =
-   let nv_fonctions = List.map (analyse_placement_fonction ) fonctions in 
+and analyse_placement_fonction (AstType.Fonction(info, lp, li)) =
+ let rec place_params params depl =
+  match params with
+  | [] -> depl
+  | info :: q ->
+      let depl_final = place_params q depl in
+      begin match info_ast_to_info info with
+        | InfoVar(_, t, _, _) ->
+            let nouvelle_adresse = depl_final - getTaille t in
+            modifier_adresse_variable nouvelle_adresse "LB" info;
+            nouvelle_adresse
+        | _ -> failwith "Error"
+      end
+  in
+  let depl_apres_params = place_params lp 0 in
+  let nv_li = analyse_placement_bloc li 3 "LB" in
+  AstPlacement.Fonction(info, lp, nv_li)
+
+
+let analyser (AstType.Programme (fonctions, prog)) =
+   let nv_fonctions = List.map analyse_placement_fonction fonctions in 
    let nv_prog = analyse_placement_bloc prog 0 "SB" in 
    AstPlacement.Programme(nv_fonctions, nv_prog)
 
-let analyse_placement_fonction (AstType.Fonction(info,lp,li)) =
-  let nv_li = analyse_placement_bloc(li,0,"LB") in
-    AstPlacement.Fonction(info,lp,nv_li)
