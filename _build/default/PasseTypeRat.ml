@@ -20,8 +20,7 @@ let rec analyse_type_expression e =
 
   match e with
     |AstTds.AppelFonction (info, le) -> 
-          let nv_le = List.map analyse_type_expression le 
-          in
+          let nv_le = List.map analyse_type_expression le in
           let l_typ = List.map (fun (_,  t)-> t) nv_le in
           let l_exps = List.map (fun (e, _)-> e) nv_le in
 
