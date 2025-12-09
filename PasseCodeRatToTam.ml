@@ -62,21 +62,30 @@ let rec analyse_code_instruction i =
         let taille = getTaille t in
         let codeExp = analyse_code_expression e in
         (push taille)^codeExp^(store taille dep reg) 
+
     | AstPlacement.Affectation(info,e) ->
+
         let InfoVar(_,t,dep,reg) = (info_ast_to_info info) in 
         let taille = getTaille t in
         let codeExp = analyse_code_expression e in
         codeExp^(store taille dep reg) 
+
     | AstPlacement.AffichageInt e ->
+
         let codeExp = analyse_code_expression e in
         codeExp^(subr "IOut") 
+
     | AstPlacement.AffichageRat e ->
+
         let codeExp = analyse_code_expression e in
         codeExp^(call "SB" "rout")
     | AstPlacement.AffichageBool e ->
+
         let codeExp = analyse_code_expression e in
         codeExp^(subr "BOut")
+
     | AstPlacement.Conditionnelle (c,bt,be) ->
+
         let codeExp = analyse_code_expression c in
         let eti_be = getEtiquette() in 
         let end_if = getEtiquette() in
@@ -105,17 +114,34 @@ let rec analyse_code_instruction i =
     
     | AstPlacement.Empty -> ""
 
-and analyse_code_bloc (li, taille ) = 
-    List.fold_right (fun i str -> (analyse_code_instruction i)^str ) li "" ^ pop 0 taille
+and analyse_code_bloc (li, _) =
+  List.fold_right
+    (fun i str -> analyse_code_instruction i ^ str)
+    li
+    ""
+
 
 let analyse_code_fonction (AstPlacement.Fonction (info , _, ( li , _))) = 
+    (* Pour verifier que si une fonction continet retour*)
+    let rec analyse_instruction_retour li =
+        (match li with 
+            |[] -> false
+            |a :: q ->( match a with 
+                        | AstPlacement.Retour(_,_,_) -> true
+                        | _ -> analyse_instruction_retour q )
+        )
+    in
     let nom = 
     match info_ast_to_info info with 
         | InfoFun(nom , _, _) -> nom
         | _ -> failwith "error"
     in 
+    (* J'ajout ca pour que si une fonction appeler sans retour le programme
+     vas stoper pour valider le tesfun5 *)
+    let queue = if (analyse_instruction_retour li) then "" else  halt in 
     label nom ^
-    (List.fold_right (fun i str -> (analyse_code_instruction i)^str ) li "")
+    (List.fold_right (fun i str -> (analyse_code_instruction i)^str ) li "")^
+    queue
 
 let analyser (AstPlacement.Programme (fonctions, prog)) = 
     getEntete() ^  
