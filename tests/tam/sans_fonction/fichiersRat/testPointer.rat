@@ -1,0 +1,30 @@
+main{
+    int * px = (new int);
+    int x = 3;
+    rat * py = (new rat);
+    px = &x;
+    print(*px);
+
+    int * px1 = (new int);
+    px1 = px ;
+    (*px) = 2 ;
+    print(*px1);
+
+    rat y = [1/3];
+    py = &y ;
+    (*py) = [2/3];
+    print(y);
+
+    bool * * b = (new bool *);
+    bool * pb = (new bool);
+    b = &pb ;
+    (*pb) = true ;
+    print(*(*b));
+    
+    int * pn = null;
+    if (pn = null) {
+        print 1;
+    } else {
+        print 0;
+    }
+}

@@ -1,1 +1,1 @@
-tam.pp.ml: Ppx_expect_runtime Ppx_inline_test_lib String
+tam.pp.ml: Expect_test_collector Ppx_inline_test_lib String

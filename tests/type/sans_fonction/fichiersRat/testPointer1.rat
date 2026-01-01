@@ -1,0 +1,6 @@
+main {
+  int * px = (new int);
+  (*px) = 42;
+  int y = (*px);
+  print y;
+}

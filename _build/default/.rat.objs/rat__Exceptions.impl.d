@@ -1,1 +1,1 @@
-exceptions.pp.ml: Ast Ppx_expect_runtime Ppx_inline_test_lib Type
+exceptions.pp.ml: Ast Expect_test_collector Ppx_inline_test_lib Type

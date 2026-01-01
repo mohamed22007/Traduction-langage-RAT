@@ -3,8 +3,11 @@
 
 type token = 
   | WHILE
+  | VOID
   | VIRG
+  | VAL
   | TRUE
+  | TID of (string)
   | SLASH
   | RETURN
   | RAT
@@ -14,6 +17,8 @@ type token =
   | PLUS
   | PF
   | NUM
+  | NULL
+  | NEW
   | MULT
   | INT
   | INF
@@ -22,6 +27,7 @@ type token =
   | FALSE
   | EQUAL
   | EOF
+  | ENUM
   | ENTIER of (int)
   | ELSE
   | DENOM
@@ -38,4 +44,4 @@ exception Error
 
 (* The monolithic API. *)
 
-val main: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Ast.AstSyntax.programme)
+val main: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Ast.AstSyntax.main)

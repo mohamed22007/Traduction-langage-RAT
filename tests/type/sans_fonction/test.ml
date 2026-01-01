@@ -382,6 +382,36 @@ let%test_unit "testOperation11"=
 let%test_unit "testOperation12"= 
   let _ = compiler (pathFichiersRat^"testOperation12.rat") in ()
 
+let%test_unit "testPointer1"= 
+  let _ = compiler (pathFichiersRat^"testPointer1.rat") in ()
+
+let%test_unit "testPointer2"= 
+  let _ = compiler (pathFichiersRat^"testPointer2.rat") in ()
+
+let%test_unit "testPointer3"= 
+  let _ = compiler (pathFichiersRat^"testPointer3.rat") in ()
+
+
+let%test_unit "testPointer5"= 
+  try 
+    let _ = compiler (pathFichiersRat^"testPointer5.rat")
+    in raise ErreurNonDetectee
+  with
+  (* Ici on attend un pointeur, mais on a un Int. *)
+  (* Le deuxième paramètre de TypeInattendu dépend de ton implémentation de analyse_type_affectable *)
+  (* Souvent c'est : TypeInattendu(Int, Pointer_typ Undefined) ou similaire *)
+  | TypeInattendu(Int, Pointer_typ _) -> ()
+
+let%test_unit "testPointer4"= 
+  try 
+    let _ = compiler (pathFichiersRat^"testPointer4.rat")
+    in raise ErreurNonDetectee
+  with
+  (* Ici on attend un pointeur, mais on a un Int. *)
+  (* Le deuxième paramètre de TypeInattendu dépend de ton implémentation de analyse_type_affectable *)
+  (* Souvent c'est : TypeInattendu(Int, Pointer_typ Undefined) ou similaire *)
+  | TypeInattendu(Int, Pointer_typ _) -> ()
+
 
 
 (* Fichiers de tests de la génération de code -> doivent passer la TDS *)

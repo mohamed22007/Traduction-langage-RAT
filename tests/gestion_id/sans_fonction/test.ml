@@ -127,6 +127,53 @@ let%test_unit "testRecursiviteVariable" =
   with
   | IdentifiantNonDeclare("x") -> ()
 
+
+let%test_unit "testPointeur1" =
+  try
+    let _ = compiler (pathFichiersRat ^ "testPointeur1.rat") in
+    raise ErreurNonDetectee
+  with
+  | RetourDansMain -> ()
+
+let%test_unit "testPointeur2" =
+  try
+    let _ = compiler (pathFichiersRat ^ "testPointeur2.rat") in
+    raise ErreurNonDetectee
+  with
+  | IdentifiantNonDeclare "x" -> ()
+
+let%test_unit "testPointeur3" =
+  try
+    let _ = compiler (pathFichiersRat ^ "testPointeur3.rat") in
+    raise ErreurNonDetectee
+  with
+  | DoubleDeclaration "p" -> ()
+
+
+let%test_unit "testenum1" = 
+  let _ = compiler (pathFichiersRat^"testenum1.rat") in ()
+
+let%test_unit "testenum2" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testenum2.rat")
+    in raise ErreurNonDetectee
+  with
+  |DoubleDeclaration("x") -> ()
+
+let%test_unit "testenum3" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testenum3.rat")
+    in raise ErreurNonDetectee
+  with
+  |DoubleDeclaration("Mois") -> ()
+
+let%test_unit "testenum4" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testenum4.rat")
+    in raise ErreurNonDetectee
+  with
+  |DoubleDeclaration("Mars") -> ()
+
 (* Fichiers de tests de la génération de code -> doivent passer la TDS *)
 open Unix
 open Filename

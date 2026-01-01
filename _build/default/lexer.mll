@@ -28,13 +28,19 @@
         "denom",   DENOM;
         "true",    TRUE;
         "false",   FALSE;
-        "return",  RETURN
+        "return",  RETURN;
+        "null",    NULL;
+        "new" ,    NEW;
+        "enum",    ENUM;
+        "void",    VOID
       ];
     fun id ->
       match Hashtbl.find_opt kws id with
       | Some kw -> kw
       | None -> ID id
 }
+
+
 
 rule token = parse
   (* ignore les sauts de lignes mais les compte quand même *)
@@ -58,6 +64,7 @@ rule token = parse
 | "+"          { PLUS }
 | "*"          { MULT }
 | "<"          { INF }
+| "&"          { VAL }
 
 (* constantes entières *)
 | ("-")?['0'-'9']+ as i
@@ -65,6 +72,11 @@ rule token = parse
 (* identifiants et mots-clefs *)
 | ['a'-'z'](['A'-'Z''a'-'z''0'-'9']|"-"|"_")* as n
                { ident n }
+
+(* Types Enum *)
+| ['A'-'Z'](['A'-'Z''a'-'z''0'-'9']|"-"|"_")* as n
+               { TID n }
+
 
 (* fin de lecture *)
 | eof          { EOF }

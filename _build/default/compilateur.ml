@@ -47,7 +47,7 @@ module CompilateurRat = Compilateur (PasseTdsNop) (PasseTypeNop) (PassePlacement
 *)
 
 (* + passe de résolution des identifiants *)
-(**
+(*
 module CompilateurRat = Compilateur (PasseTdsRat) (PasseTypeNop) (PassePlacementNop) (PasseCodeNop) 
 *)
 

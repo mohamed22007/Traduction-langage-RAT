@@ -1,0 +1,10 @@
+void afficher(int x){
+    print(x);
+    return x ;
+}
+
+main{
+    int x = 5;
+    afficher(5);
+    afficher(x);
+}

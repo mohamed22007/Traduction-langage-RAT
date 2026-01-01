@@ -118,6 +118,55 @@ let%test_unit "test"=
 let%test_unit "code_factrec" = 
 let _ = compiler   (pathFichiersRat^"factrec.rat") in ()
 
+let%test_unit "testPointerFunc1" = 
+  let _ = compiler (pathFichiersRat^"testPointerFunc1.rat") in ()
+
+let%test_unit "testPointerFunc2" = 
+  let _ = compiler (pathFichiersRat^"testPointerFunc2.rat") in ()
+
+let%test_unit "testPointerFunc3" = 
+  let _ = compiler (pathFichiersRat^"testPointerFunc3.rat") in ()
+
+let%test_unit "testPointerFuncErr1" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testPointerFuncErr1.rat")
+    in raise ErreurNonDetectee
+  with
+  | TypesParametresInattendus([Int], [Pointer_typ Int]) -> ()
+
+let%test_unit "testPointerFuncErr2" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testPointerFuncErr2.rat")
+    in raise ErreurNonDetectee
+  with
+  | TypeInattendu(Int, Pointer_typ Int) -> ()
+
+let%test_unit "testenum1" = 
+  let _ = compiler (pathFichiersRat^"testenum1.rat") in ()
+
+let%test_unit "testVoid1" = 
+  let _ = compiler (pathFichiersRat^"testVoid1.rat") in ()
+
+let%test_unit "testVoid2" =
+  try
+    let _ = compiler (pathFichiersRat ^ "testVoid2.rat") in
+    raise ErreurNonDetectee
+  with
+  | TypeInattendu(_,_) -> ()
+
+let%test_unit "testVoid3" =
+  try
+    let _ = compiler (pathFichiersRat ^ "testVoid3.rat") in
+    raise ErreurNonDetectee
+  with
+  | MauvaiseUtilisationIdentifiant ("identifier pas de fonction ") -> ()
+
+let%test_unit "testVoid4" =
+  try
+    let _ = compiler (pathFichiersRat ^ "testVoid4.rat") in
+    raise ErreurNonDetectee
+  with
+  | TypeInattendu(_, _) -> ()
 
 (* Fichiers de tests de la génération de code -> doivent passer la TDS *)
 open Unix

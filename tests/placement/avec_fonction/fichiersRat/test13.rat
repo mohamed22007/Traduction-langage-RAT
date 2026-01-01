@@ -1,0 +1,11 @@
+int * f (int * p, rat r) {
+    int loc = 0;    
+    int * ptr = &loc;  
+    return ptr;
+}
+
+main {
+    int * p1 = null;   
+    rat r1 = [1/2];     
+    int * res = f(p1, r1); 
+}

@@ -51,7 +51,7 @@ let%expect_test "testfun4" =
 
 let%expect_test "testfun5" =
   runtam (pathFichiersRat^"testfun5.rat");
-  [%expect{| tam.TamException: Tam error : Program has failed due to a memory or stack error |}]
+  [%expect{| |}]
 
 let%expect_test "testfun6" =
   runtam (pathFichiersRat^"testfun6.rat");
@@ -65,4 +65,15 @@ let%expect_test "factrec" =
   runtam (pathFichiersRat^"factrec.rat");
   [%expect{| 120 |}]
 
+let%expect_test "testPointerFunc" =
+  runtam (pathFichiersRat^"testPointerFunc.rat");
+  [%expect{| 2010991 |}]
 
+let%expect_test "testenum1" =
+  runtam (pathFichiersRat^"testenum1.rat");
+  [%expect{| falsetrue |}]
+
+
+let%expect_test "testvoid1" =
+  runtam (pathFichiersRat^"testvoid1.rat");
+  [%expect{| [1/2][3/4][5/4] |}]

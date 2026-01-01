@@ -6,6 +6,8 @@ type info =
   | InfoConst of string * int
   | InfoVar of string * typ * int * string
   | InfoFun of string * typ * typ list
+  | InfoPoint of string * typ * int * string * int 
+  | InfoEnum of string * int * int
 
 (* Données stockées dans la tds  et dans les AST : pointeur sur une information *)
 type info_ast = info ref  
@@ -287,6 +289,7 @@ let string_of_info info =
   | InfoVar (n,t,dep,base) -> "Variable "^n^" : "^(string_of_type t)^" "^(string_of_int dep)^"["^base^"]"
   | InfoFun (n,t,tp) -> "Fonction "^n^" : "^(List.fold_right (fun elt tq -> if tq = "" then (string_of_type elt) else (string_of_type elt)^" * "^tq) tp "" )^
                       " -> "^(string_of_type t)
+  | InfoPoint (n,t,dep,base,point) -> "Pointeur "^n^" : "^(string_of_type t)^" "^(string_of_int dep)^"["^base^"]"^(string_of_int point)
 
 (* Affiche la tds locale *)
 let afficher_locale tds =
@@ -346,4 +349,33 @@ let%test _ =
   | InfoVar ("x", Rat, 10 , "LB") -> true
   | _ -> false
     
+let modifier_adresse_pointer  d b p i = 
+    match !i with
+        |InfoPoint (n,t,_,_,_) -> i:= InfoPoint (n,t,d,b,p)
+        | _ -> failwith "Appel modifier_adresse_pointer pas sur un InfoPoint"
    
+let%test _ = 
+  let info = InfoPoint ("x", Rat, 4 , "SB", 10) in
+  let ia = info_to_info_ast info in
+  modifier_adresse_pointer 10 "LB" 11 ia;
+  match info_ast_to_info ia with
+  | InfoPoint ("x", Rat, 10 , "LB", 11) -> true
+  | _ -> false
+
+let modifier_adresse_enum d taille i =
+  match !i with 
+    |InfoEnum (nom, _, _) -> i:= InfoEnum(nom, d, taille)
+    | _ ->failwith "Appel modifier_adresse_pointer pas sur un InfoEnum"
+
+let  modifier_type_pointer t i =
+    match !i with
+        | InfoPoint (n,_,dep,base,point) -> i:= InfoPoint (n,t,dep,base,point)
+        | _ -> failwith "Appel modifier_type_pointer pas sur un InfoPoint"
+
+let%test _ = 
+  let info = InfoPoint ("x", Undefined, 4 , "SB", 0) in
+  let ia = info_to_info_ast info in
+  modifier_type_pointer Rat ia;
+  match info_ast_to_info ia with
+  | InfoPoint ("x", Rat, 4 , "SB", 0) -> true
+  | _ -> false

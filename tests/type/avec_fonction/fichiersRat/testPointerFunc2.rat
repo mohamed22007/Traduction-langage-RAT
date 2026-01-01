@@ -1,0 +1,10 @@
+int * create (int val) {
+  int * p = (new int);
+  (*p) = val;
+  return p;
+}
+
+main {
+  int * res = create(5);
+  print (*res);
+}

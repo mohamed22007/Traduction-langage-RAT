@@ -1,7 +1,10 @@
 type token =
     WHILE
+  | VOID
   | VIRG
+  | VAL
   | TRUE
+  | TID of string
   | SLASH
   | RETURN
   | RAT
@@ -11,6 +14,8 @@ type token =
   | PLUS
   | PF
   | NUM
+  | NULL
+  | NEW
   | MULT
   | INT
   | INF
@@ -19,6 +24,7 @@ type token =
   | FALSE
   | EQUAL
   | EOF
+  | ENUM
   | ENTIER of int
   | ELSE
   | DENOM
@@ -32,19 +38,24 @@ val menhir_begin_marker : int
 val xv_typ : Type.typ
 val xv_separated_nonempty_list_VIRG_param_ : (Type.typ * string) list
 val xv_separated_nonempty_list_VIRG_e_ : Ast.AstSyntax.expression list
+val xv_separated_nonempty_list_VIRG_TID_ : string list
 val xv_separated_list_VIRG_param_ : (Type.typ * string) list
 val xv_separated_list_VIRG_e_ : Ast.AstSyntax.expression list
 val xv_prog : Ast.AstSyntax.programme
 val xv_param : Type.typ * string
-val xv_main : Ast.AstSyntax.programme
+val xv_main : Ast.AstSyntax.main
 val xv_loption_separated_nonempty_list_VIRG_param__ :
   (Type.typ * string) list
 val xv_loption_separated_nonempty_list_VIRG_e__ :
   Ast.AstSyntax.expression list
 val xv_list_i_ : Ast.AstSyntax.bloc
 val xv_list_fonc_ : Ast.AstSyntax.fonction list
+val xv_list_enum_ : Ast.AstSyntax.enum list
+val xv_ids : string list
 val xv_i : Ast.AstSyntax.instruction
 val xv_fonc : Ast.AstSyntax.fonction
+val xv_enum : Ast.AstSyntax.enum
 val xv_e : Ast.AstSyntax.expression
 val xv_bloc : Ast.AstSyntax.bloc
+val xv_a : Ast.AstSyntax.affectable
 val menhir_end_marker : int

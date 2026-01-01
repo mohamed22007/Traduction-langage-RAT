@@ -1,23 +1,30 @@
-type typ = Bool | Int | Rat | Undefined
+type typ = Bool | Int | Rat | Undefined | Pointer_typ of typ | Type_enum of string | Void
 
-let string_of_type t = 
+let rec string_of_type t = 
   match t with
   | Bool ->  "Bool"
   | Int  ->  "Int"
   | Rat  ->  "Rat"
+  | Pointer_typ x -> "*"^string_of_type(x)
+  | Type_enum n -> n
   | Undefined -> "Undefined"
+  | Void -> "Void"
 
 
-let est_compatible t1 t2 =
+let rec est_compatible t1 t2 =
   match t1, t2 with
   | Bool, Bool -> true
   | Int, Int -> true
   | Rat, Rat -> true 
+  | Pointer_typ t1, Pointer_typ t2 -> est_compatible t1 t2
+  | Type_enum t1, Type_enum t2 -> (t1 = t2)
   | _ -> false 
 
 let%test _ = est_compatible Bool Bool
 let%test _ = est_compatible Int Int
 let%test _ = est_compatible Rat Rat
+let%test _ = est_compatible (Type_enum "Nom") (Type_enum "Nom")
+let%test _ = not (est_compatible (Type_enum "Nom") (Type_enum "Date"))
 let%test _ = not (est_compatible Int Bool)
 let%test _ = not (est_compatible Bool Int)
 let%test _ = not (est_compatible Int Rat)
@@ -31,6 +38,7 @@ let%test _ = not (est_compatible Bool Undefined)
 let%test _ = not (est_compatible Undefined Int)
 let%test _ = not (est_compatible Undefined Rat)
 let%test _ = not (est_compatible Undefined Bool)
+
 
 let est_compatible_list lt1 lt2 =
   try
@@ -50,7 +58,10 @@ let getTaille t =
   | Int -> 1
   | Bool -> 1
   | Rat -> 2
+  | Pointer_typ _ -> 1
   | Undefined -> 0
+  | Void -> 0
+  | Type_enum _ -> 1
   
 let%test _ = getTaille Int = 1
 let%test _ = getTaille Bool = 1

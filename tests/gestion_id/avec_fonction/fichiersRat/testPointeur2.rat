@@ -1,0 +1,10 @@
+int setZero(int* p) {
+  (*p) = 0;
+  return 0;
+}
+
+main {
+  int x = 5;
+  int call = setZero(&x);
+  print x;
+}

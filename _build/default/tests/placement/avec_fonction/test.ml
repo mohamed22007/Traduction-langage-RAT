@@ -124,5 +124,31 @@ let%test "test12_f_r" =
     
 let%test "test12_f_i" = 
   test (pathFichiersRat^"test12.rat")  "f" ("i",1)  (-1, "LB")
+
+(* Tests des paramètres de f *)
+(* r est le dernier paramètre (droite), taille 2 -> LB[-2] *)
+let%test "test13_f_r" = 
+   test (pathFichiersRat^"test13.rat")  "f" ("r",1)   (-2, "LB")
+
+(* p est l'avant-dernier, taille 1 -> LB[-3] *)
+let%test "test13_f_p" = 
+   test (pathFichiersRat^"test13.rat")  "f" ("p",1)   (-3, "LB")
+
+(* Tests des locales de f *)
+let%test "test13_f_loc" = 
+   test (pathFichiersRat^"test13.rat")  "f" ("loc",1) (3, "LB")
+
+let%test "test13_f_ptr" = 
+   test (pathFichiersRat^"test13.rat")  "f" ("ptr",1) (4, "LB")
+
+(* Tests du main *)
+let%test "test13_main_p1" = 
+   test (pathFichiersRat^"test13.rat")  "main" ("p1",1)  (0, "SB")
+
+let%test "test13_main_r1" = 
+   test (pathFichiersRat^"test13.rat")  "main" ("r1",1)  (1, "SB")
+
+let%test "test13_main_res" = 
+   test (pathFichiersRat^"test13.rat")  "main" ("res",1) (3, "SB")
   
 

@@ -180,3 +180,28 @@ let%test "test7_y1" =
 let%test "test7_z1" = 
    test (pathFichiersRat^"test7.rat")  "main" ("z1",1)  (7, "SB")
 || test (pathFichiersRat^"test7.rat")  "main" ("z1",1)  (7, "LB")
+
+
+let%test "test14_x" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("x",1)   (0, "SB")
+
+let%test "test14_px" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("px",1)  (1, "SB")
+
+let%test "test14_y" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("y",1)   (2, "SB")
+
+let%test "test14_py" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("py",1)  (4, "SB")
+
+let%test "test14_pb" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("pb",1)  (5, "SB")
+
+let%test "test14_z" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("z",1)   (6, "SB")
+
+let%test "test14_pz" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("pz",1)  (5, "SB")
+
+let%test "test14_final" = 
+   test (pathFichiersRat^"test14.rat")  "main" ("final",1) (5, "SB")

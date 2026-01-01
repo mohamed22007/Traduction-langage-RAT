@@ -14,45 +14,45 @@ end
 (* Passe AstSyntax.programme -> AstTds.programme *)
 (* Ne fait rien *)
 (* Nécessaire aux compilateurs intermédiaires (non complets) *)
-module PasseTdsNop : Passe  with type t1 = Ast.AstSyntax.programme and type t2 =  Ast.AstTds.programme =
+module PasseTdsNop : Passe  with type t1 = Ast.AstSyntax.main and type t2 =  Ast.AstTds.main =
 struct
-  type t1 = Ast.AstSyntax.programme
-  type t2 = Ast.AstTds.programme
+  type t1 = Ast.AstSyntax.main
+  type t2 = Ast.AstTds.main
 
-  let analyser _ =  Ast.AstTds.Programme([],[])
+  let analyser _ =  Ast.AstTds.Main([], Ast.AstTds.Programme([],[]))
 
 end
 
 (* Passe AstTds.programme -> AstType.programme *)
 (* Ne fait rien *)
 (* Nécessaire aux compilateurs intermédiaires (non complets) *)
-module PasseTypeNop : Passe  with type t1 = Ast.AstTds.programme and type t2 = Ast.AstType.programme =
+module PasseTypeNop : Passe  with type t1 = Ast.AstTds.main and type t2 = Ast.AstType.main =
 struct
-  type t1 = Ast.AstTds.programme
-  type t2 =  Ast.AstType.programme
+  type t1 = Ast.AstTds.main
+  type t2 =  Ast.AstType.main
 
-  let analyser _ =  Ast.AstType.Programme([],[])
+  let analyser _ =  Ast.AstType.Main([], Ast.AstType.Programme([],[]))
 
 end
 
-(* Passe AstType.programme -> unit *)
+(* Passe AstType.main -> unit *)
 (* Ne fait rien *)
 (* Nécessaire aux compilateurs intermédiaires (non complets) *)
-module PassePlacementNop : Passe  with type t1 =  Ast.AstType.programme and type t2 = Ast.AstPlacement.programme =
+module PassePlacementNop : Passe  with type t1 =  Ast.AstType.main and type t2 = Ast.AstPlacement.main =
 struct
-  type t1 = Ast.AstType.programme
-  type t2 = Ast.AstPlacement.programme
+  type t1 = Ast.AstType.main
+  type t2 = Ast.AstPlacement.main
 
-  let analyser _ = Ast.AstPlacement.Programme([],([],0))
+  let analyser _ = Ast.AstPlacement.Main([], Ast.AstPlacement.Programme([],([],0)))
 
 end
 
-(* Passe AstPlacement.programme -> string *)
+(* Passe AstPlacement.main -> string *)
 (* Ne fait rien *)
 (* Nécessaire aux compilateurs intermédiaires (non complets) *)
-module PasseCodeNop : Passe  with type t1 = Ast.AstPlacement.programme and type t2 = string =
+module PasseCodeNop : Passe  with type t1 = Ast.AstPlacement.main and type t2 = string =
 struct
-  type t1 = Ast.AstPlacement.programme
+  type t1 = Ast.AstPlacement.main
   type t2 = string
 
   let analyser _ = ""
@@ -96,7 +96,7 @@ let analyser_param info =
     | _ -> failwith "Internal error"
 
   (* Renvoie la suite des adresses des variables déclarées dans les fonctions et dans le programme principal *)
-  let analyser (Ast.AstPlacement.Programme (fonctions, (prog,_))) =
+  (* On ignore les enums (_) car ils n'ont pas d'adresse en mémoire au sens "stack frame" *)
+  let analyser (Ast.AstPlacement.Main (_, Ast.AstPlacement.Programme (fonctions, (prog,_)))) =
     ("main", List.flatten (List.map (analyser_instruction) prog))::(List.flatten (List.map (analyser_fonction) fonctions))
-
 end

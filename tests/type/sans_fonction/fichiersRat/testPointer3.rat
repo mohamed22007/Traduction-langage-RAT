@@ -1,0 +1,6 @@
+main {
+  rat r = [1/2];
+  rat * pr = &r;
+  (*pr) = [3/4];
+  print r;
+}

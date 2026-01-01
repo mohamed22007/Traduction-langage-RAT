@@ -1,0 +1,5 @@
+main {
+  bool * pb = null;
+  bool * pbx = (new bool);
+  (*pb) = true;
+}
