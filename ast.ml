@@ -43,6 +43,7 @@ type expression =
   | Null 
   (* Pour declarer nouveau pointer *)
   | New of typ
+  | Reference of string
 
 (* Affectable en Rat *)
 and affectable = 
@@ -74,8 +75,8 @@ and instruction =
   | AppelVoid of string * expression list 
 
 (* Structure des fonctions de Rat *)
-(* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction *)
-type fonction = Fonction of typ * string * (typ * string) list * bloc
+(* type de retour - nom - liste des paramètres (association type et nom et is_ref) - corps de la fonction *)
+type fonction = Fonction of typ * string * (typ * string * bool) list * bloc
 
 
 (* Structure d'un programme Rat *)
@@ -111,6 +112,7 @@ struct
     | Binaire of AstSyntax.binaire * expression * expression
     | Null
     | New of typ
+    | Reference of Tds.info_ast 
 
   (* Affectables existantes dans notre langage *)
   (* ~ Affectable de l'AST syntaxique où les noms des identifiants ont été
@@ -138,7 +140,7 @@ struct
 
   (* Structure des fonctions dans notre langage *)
   (* type de retour - informations associées à l'identificateur (dont son nom) - liste des paramètres (association type et information sur les paramètres) - corps de la fonction *)
-  type fonction = Fonction of typ * Tds.info_ast * (typ * Tds.info_ast ) list * bloc
+  type fonction = Fonction of typ * Tds.info_ast * (typ * Tds.info_ast * bool) list * bloc
 
 
   (* Structure d'un programme dans notre langage *)
@@ -176,6 +178,7 @@ type expression =
   | Binaire of binaire * expression * expression
   | Null
   | New of typ
+  | Reference of Tds.info_ast 
 
 (* Affectable existantes dans Rat *)
 (* = affectable de AstTds *)

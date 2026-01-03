@@ -59,30 +59,36 @@ let rec analyse_placement_instruction i depl reg =
 
     (* Instruction return avec valeur *)
     | AstType.Retour (e, ia) ->
-        begin
-          match (info_ast_to_info ia) with
-            | InfoFun (_, tr, tp) -> 
-                (* Taille de la valeur de retour *)
-                let taille_ret = getTaille tr in
-                (* Taille totale des paramètres *)
-                let taille_params =
-                  List.fold_right (fun t acc -> acc + getTaille t) tp 0
-                in
-                (AstPlacement.Retour (e, taille_ret, taille_params), 0)
-            | _ -> failwith "Erreur interne : Retour hors fonction"
-        end
+    begin
+      match (info_ast_to_info ia) with
+        (* On récupère la signature complète : (type * bool) list *)
+        | InfoFun (_, tr, signature_params) -> 
+            let taille_ret = getTaille tr in
+            (* CORRECTION : On parcourt la signature pour voir les 'ref' *)
+            let taille_params =
+              List.fold_right (fun (t, is_ref) acc -> 
+                let taille_reelle = if is_ref then 1 else getTaille t in
+                acc + taille_reelle
+              ) signature_params 0
+            in
+            (AstPlacement.Retour (e, taille_ret, taille_params), 0)
+        | _ -> failwith "Erreur interne : Retour hors fonction"
+    end
 
     (* Instruction return void *)
     | AstType.RetourVoid (ia) -> 
         begin 
           match (info_ast_to_info ia) with
-            | InfoFun (_, _, tp) -> 
+            | InfoFun (_, _, signature_params) -> 
                 let taille_params =
-                  List.fold_right (fun t acc -> acc + getTaille t) tp 0
+                  List.fold_right (fun (t, is_ref) acc -> 
+                    let taille_reelle = if is_ref then 1 else getTaille t in
+                    acc + taille_reelle
+                  ) signature_params 0
                 in
                 (AstPlacement.RetourVoid (taille_params), 0)
             | _ -> failwith "Erreur interne : Retour hors fonction"
-        end 
+        end
 
     (* Appel de fonction sans valeur de retour *)
     | AstType.AppelVoid(info, exps) ->
@@ -115,24 +121,32 @@ and analyse_placement_bloc li depl reg =
 
 (* analyse_placement_fonction : placement des paramètres et du corps *)
 let analyse_placement_fonction (AstType.Fonction(info, lp, li)) =
+  
+  (* Récupération de la signature pour savoir qui est Ref *)
+  let params_signature = 
+    match info_ast_to_info info with
+    | InfoFun (_, _, signature) -> signature
+    | _ -> failwith "Erreur interne"
+  in
+  let params_complets = List.combine lp params_signature in
 
-  (* Placement des paramètres dans la pile (adresses négatives depuis LB) *)
+  (* Placement des paramètres *)
   let _ =
-    List.fold_right (fun info depl -> 
-      let t = get_type_info info in
-      let taille = getTaille t in
+    List.fold_right (fun (info_ast, (t, is_ref)) depl -> 
+      (* Taille : 1 si c'est une ref, sinon taille du type *)
+      let taille = if is_ref then 1 else getTaille t in
       let nouv_depl = depl - taille in
-      modifier_adresse_toute_info nouv_depl "LB" info;
+      
+      (* Si c'est une ref, on note le registre comme "LBRef" *)
+      let registre = if is_ref then "LBRef" else "LB" in
+      
+      modifier_adresse_toute_info nouv_depl registre info_ast;
       nouv_depl
-    ) lp 0
+    ) params_complets 0
   in
 
-  (* Le corps commence après : *)
-  (* - adresse de retour *)
-  (* - ancien LB *)
-  (* - valeur de retour *)
+  (* Le corps commence à 3 *)
   let bloc_corps = analyse_placement_bloc li 3 "LB" in
-  
   AstPlacement.Fonction(info, lp, bloc_corps)
 
  

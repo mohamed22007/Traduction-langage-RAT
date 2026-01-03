@@ -1,4 +1,4 @@
-open Ast
+(* open Ast
 open Type
 
 (* Interface d'affichage des arbres abstraits *)
@@ -104,3 +104,4 @@ struct
     flush_all ()
 
 end
+*)

@@ -37,7 +37,7 @@ open Ast.AstSyntax
 %token MULT
 %token INF
 %token EOF
-
+%token REF
 
 %token NULL
 %token NEW
@@ -53,7 +53,7 @@ open Ast.AstSyntax
 %type <fonction> fonc
 %type <instruction> i
 %type <typ> typ
-%type <typ*string> param
+%type <typ*string*bool> param
 %type <expression> e 
 %type <affectable> a
 %type <string list> ids
@@ -73,13 +73,13 @@ prog : lf=fonc* ID li=bloc  {Programme (lf,li)}
 
 fonc : t=typ n=ID PO lp=separated_list(VIRG,param) PF li=bloc {Fonction(t,n,lp,li)}
 
-param : t=typ n=ID  {(t,n)}
+param : r=option(REF) t=typ n=ID  { (t, n, (r <> None)) }
 
 bloc : AO li=i* AF      {li}
 
 i :
 | t=typ n=ID EQUAL e1=e PV          {Declaration (t,n,e1)}
-| a1=a EQUAL e1=e PV                {Affectation (a1,e1)} (**)
+| a1=a EQUAL e1=e PV                {Affectation (a1,e1)} 
 | CONST n=ID EQUAL e=ENTIER PV      {Constante (n,e)}
 | PRINT e1=e PV                     {Affichage (e1)}
 | IF exp=e li1=bloc ELSE li2=bloc   {Conditionnelle (exp,li1,li2)}
@@ -120,3 +120,4 @@ e :
 | PO NEW t=typ PF         {New(t)} 
 | VAL i=ID                {Unaire(Address,Acces(IdentAffect i))} 
 | NULL                    {Null}
+| REF i=ID                {Reference(i)}

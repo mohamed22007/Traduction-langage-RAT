@@ -77,3 +77,7 @@ let%expect_test "testenum1" =
 let%expect_test "testvoid1" =
   runtam (pathFichiersRat^"testvoid1.rat");
   [%expect{| [1/2][3/4][5/4] |}]
+
+let%expect_test "testTout" =
+  runtam (pathFichiersRat^"testTout.rat");
+  [%expect{| 105101551051510751510 |}]

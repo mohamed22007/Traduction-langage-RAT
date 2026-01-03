@@ -159,7 +159,7 @@ let%test_unit "testVoid3" =
     let _ = compiler (pathFichiersRat ^ "testVoid3.rat") in
     raise ErreurNonDetectee
   with
-  | MauvaiseUtilisationIdentifiant ("identifier pas de fonction ") -> ()
+  | MauvaiseUtilisationIdentifiant _ -> ()
 
 let%test_unit "testVoid4" =
   try

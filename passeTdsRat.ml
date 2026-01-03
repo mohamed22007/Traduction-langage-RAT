@@ -79,6 +79,17 @@ let rec analyse_tds_expression tds e =
       AstTds.Binaire (bi, exp1, exp2)
 
     | AstSyntax.New(t) -> AstTds.New(t)
+    | AstSyntax.Reference(nom) -> 
+      begin match chercherGlobalement tds nom with 
+        | Some ia ->
+              begin match info_ast_to_info ia with
+                | InfoFun _ -> raise (MauvaiseUtilisationIdentifiant nom)
+                | _ -> AstTds.Reference ia
+              end 
+              
+        | None -> 
+            raise(IdentifiantNonDeclare nom)
+        end
 
 
 
@@ -242,12 +253,12 @@ let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li))  =
               ajouter maintds n nv_info ;
               let fil = creerTDSFille maintds in
 
-              let nlp = List.map (fun(typ, nom) -> 
+              let nlp = List.map (fun(typ, nom, is_ref) -> 
                     match chercherLocalement fil nom with
                      | Some _ -> raise (DoubleDeclaration nom)
                       | None -> let info_var = info_to_info_ast (InfoVar(nom, typ , 0 , "")) in 
                       ajouter fil nom info_var ;
-                      (typ , info_var)
+                      (typ , info_var, is_ref)
                       
               ) lp 
               in 

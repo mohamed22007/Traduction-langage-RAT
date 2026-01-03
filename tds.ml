@@ -5,7 +5,7 @@ open Type
 type info =
   | InfoConst of string * int
   | InfoVar of string * typ * int * string
-  | InfoFun of string * typ * typ list
+  | InfoFun of string * typ * (typ * bool) list
   | InfoPoint of string * typ * int * string * int 
   | InfoEnum of string * int * int
 
@@ -282,12 +282,18 @@ let%test _ =
     chercherGlobalement tdsf "a" = None
 
 
+
 (* Convertie une info en une chaine de caractère - pour affichage *)
 let string_of_info info =
+  (*Afficher reference selon bool *)
+  let afficher_ref (t,b) =
+    if b then "ref "^string_of_type(t)
+    else string_of_type(t)
+  in 
   match info with
   | InfoConst (n,value) -> "Constante "^n^" : "^(string_of_int value)
   | InfoVar (n,t,dep,base) -> "Variable "^n^" : "^(string_of_type t)^" "^(string_of_int dep)^"["^base^"]"
-  | InfoFun (n,t,tp) -> "Fonction "^n^" : "^(List.fold_right (fun elt tq -> if tq = "" then (string_of_type elt) else (string_of_type elt)^" * "^tq) tp "" )^
+  | InfoFun (n,t,tp) -> "Fonction "^n^" : "^(List.fold_right (fun (elt,b) tq -> if tq = "" then (afficher_ref (elt, b)) else (afficher_ref (elt, b))^" * "^tq) tp "" )^
                       " -> "^(string_of_type t)
   | InfoPoint (n,t,dep,base,point) -> "Pointeur "^n^" : "^(string_of_type t)^" "^(string_of_int dep)^"["^base^"]"^(string_of_int point)
 
@@ -330,9 +336,9 @@ let modifier_type_fonction t tp i =
 let%test _ = 
   let info = InfoFun ("f", Undefined, []) in
   let ia = info_to_info_ast info in
-  modifier_type_fonction Rat [Int ; Int] ia;
+  modifier_type_fonction Rat [(Int,false) ; (Int,false)] ia;
   match info_ast_to_info ia with
-  | InfoFun ("f", Rat, [Int ; Int]) -> true
+  | InfoFun ("f", Rat, [(Int,false) ; (Int,false)]) -> true
   | _ -> false
  
 (* Modifie l'emplacement (dépl, registre) si c'est une InfoVar, ne fait rien sinon *)

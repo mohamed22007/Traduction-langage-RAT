@@ -50,19 +50,39 @@ let rec analyse_type_expression e =
 
   match e with
     (* Appel de fonction : analyse les arguments et vérifie leur compatibilité avec la fonction appelée *)
-    |AstTds.AppelFonction (info, le) ->
-          let nv_le = List.map analyse_type_expression le in
-          let l_typ = List.map (fun (_,  t)-> t) nv_le in
-          let l_exps = List.map (fun (e, _)-> e) nv_le in
+    | AstTds.AppelFonction (info, le) ->
+        let nv_le = List.map analyse_type_expression le in
+        
+        (* On construit une liste de (type, est_reference) pour les arguments fournis *)
+        let l_typ_args = List.map (fun (e, t) -> 
+            match e with 
+            | AstType.Reference _ -> (t, true) (* C'est un paramètre ref *)
+            | _ -> (t, false)                  (* C'est un paramètre valeur *)
+        ) nv_le in
+        
+        let l_exps = List.map (fun (e, _)-> e) nv_le in
 
-          begin match info_ast_to_info info with
-            | InfoFun(_, t, ln) -> 
-                (* Vérification de la compatibilité des paramètres de la fonction *)
-                if (not (est_compatible_list l_typ ln)) && (not(t = Void)) then 
-                  raise (TypesParametresInattendus(l_typ, ln))
-               else (AstType.AppelFonction(info, l_exps),t)
-            | _ -> raise (MauvaiseUtilisationIdentifiant ("identifier pas de fonction "))
-          end 
+        begin match info_ast_to_info info with
+        | InfoFun(_, t_ret, params_expected) -> 
+            (* params_expected est une liste de (typ * bool) issue de la déclaration *)
+            
+            (* Fonction pour vérifier types ET mode de passage (ref/val) *)
+            let est_compatible_et_mode (t_arg, is_ref_arg) (t_param, is_ref_param) =
+                est_compatible t_arg t_param && (is_ref_arg = is_ref_param)
+            in
+
+            (* On vérifie que les longueurs correspondent d'abord *)
+            if List.length l_typ_args <> List.length params_expected then
+                 raise (TypesParametresInattendus (List.map fst l_typ_args, List.map fst params_expected))
+            else
+                (* On vérifie la compatibilité complète *)
+                if List.for_all2 est_compatible_et_mode l_typ_args params_expected then
+                    (AstType.AppelFonction(info, l_exps), t_ret)
+                else
+                    raise (TypesParametresInattendus (List.map fst l_typ_args, List.map fst params_expected))
+        
+        | _ -> raise (MauvaiseUtilisationIdentifiant "Cet identifiant n'est pas une fonction")
+        end
 
     (* Accès à un affectable : renvoie l'affectable et son type *)
     |AstTds.Acces a -> 
@@ -135,6 +155,14 @@ let rec analyse_type_expression e =
       |AstTds.Null -> (AstType.Null, Undefined)
       | AstTds.New t -> 
         (AstType.New t, Pointer_typ t)
+      | AstTds.Reference(info) -> 
+        (* On récupère le type de la variable référencée *)
+        let t = match info_ast_to_info info with
+          | InfoVar (_, t, _, _) -> t
+          | _ -> failwith "Erreur interne: référence sur non-variable" 
+        in
+        (* On renvoie le noeud Reference typé et le type de la variable *)
+        (AstType.Reference(info), t)
 
 
 (* analyse_type_instruction : analyse une instruction et retourne le type de l'instruction *)
@@ -232,24 +260,49 @@ let rec analyse_type_instruction i =
         (* Vérification que la fonction est bien de type void *)
         begin match info_ast_to_info ia with
           | InfoFun(_,Void,_) -> AstType.RetourVoid(ia)
-          | _ -> raise (MauvaiseUtilisationIdentifiant "Not Func")
+          | _ -> raise (MauvaiseUtilisationIdentifiant "identifier pas de fonction ")
         end 
 
     | AstTds.AppelVoid(info, le) -> 
-        (* Analyse des paramètres *)
         let nv_le = List.map analyse_type_expression le in
-        let l_typ = List.map (fun (_,  t)-> t) nv_le in
+        
+        (* On regarde si l'expression analysée est un noeud Reference pour savoir si c'est un passage par référence *)
+        let l_typ_args = List.map (fun (e, t) -> 
+            match e with 
+            | AstType.Reference _ -> (t, true) (* C'est une référence *)
+            | _ -> (t, false)                  (* C'est une valeur *)
+        ) nv_le in
+        
+        (* Récupération des expressions seules pour l'AST final *)
         let l_exps = List.map (fun (e, _)-> e) nv_le in
 
-        (* Vérification que la fonction appelée est void *)
+        (* Vérification avec la signature de la fonction dans la TDS *)
         begin match info_ast_to_info info with
-          | InfoFun(_, Void, ln) -> 
-              if (not (est_compatible_list l_typ ln)) then 
-                raise (TypesParametresInattendus(l_typ, ln))
-              else 
-                AstType.AppelVoid(info, l_exps)
-          | _ -> raise (MauvaiseUtilisationIdentifiant ("identifier pas de fonction "))
-        end 
+          (* Cas : C'est bien une fonction, et elle est de type Void *)
+          | InfoFun(_, Void, params_expected) -> 
+              
+              (* Fonction locale pour vérifier Type ET Mode (Ref/Val) *)
+              let est_compatible_et_mode (t_arg, is_ref_arg) (t_param, is_ref_param) =
+                  Type.est_compatible t_arg t_param && (is_ref_arg = is_ref_param)
+              in
+
+              (* Vérification de la taille (nombre d'arguments) *)
+              if List.length l_typ_args <> List.length params_expected then
+                 raise (TypesParametresInattendus (List.map fst l_typ_args, List.map fst params_expected))
+              else
+                  (* Vérification des types et des modes de passage *)
+                  if List.for_all2 est_compatible_et_mode l_typ_args params_expected then 
+                    AstType.AppelVoid(info, l_exps)
+                  else 
+                    (* Si erreur, on lève l'exception avec les listes de types *)
+                    raise (TypesParametresInattendus(List.map fst l_typ_args, List.map fst params_expected))
+          
+          (* C'est une fonction, mais elle retourne un type (Int, Rat...) et non Void *)
+          | InfoFun _ -> raise (MauvaiseUtilisationIdentifiant "Une fonction retournant une valeur ne peut pas être appelée comme une procédure")
+          
+          (* Ce n'est pas une fonction (Variable, Paramètre, etc.) *)
+          | _ -> raise (MauvaiseUtilisationIdentifiant "Cet identifiant n'est pas une procédure")
+        end
   end 
 
 (* Analyse d’un bloc : application de l’analyse de type à chaque instruction *)
@@ -260,8 +313,8 @@ and analyse_type_bloc li =
 (* analyse_type_fonction : analyse une fonction *)
 (* Vérifie les types des paramètres, du corps et du type de retour *)
 let analyse_type_fonction (AstTds.Fonction(t,info,lp,li)) =
-  let l_typ = List.map (fun (t,_) -> t) lp in 
-  let l_info =  List.map (fun (_,i) -> i) lp in 
+  let l_typ = List.map (fun (t,_,r) -> (t,r)) lp in 
+  let l_info =  List.map (fun (_,i,_) -> i) lp in 
 
   (* Mise à jour du type de la fonction *)
   modifier_type_fonction t l_typ info;
@@ -272,10 +325,18 @@ let analyse_type_fonction (AstTds.Fonction(t,info,lp,li)) =
   (* Vérification finale des paramètres *)
   match info_ast_to_info info with 
     | InfoFun(_,_,lt) -> 
-        if (est_compatible_list lt l_typ) then
+
+        (* Fonction locale pour vérifier Type ET Mode (Ref/Val) *)
+        let est_compatible_et_mode (t_arg, is_ref_arg) (t_param, is_ref_param) =
+                  Type.est_compatible t_arg t_param && (is_ref_arg = is_ref_param)
+        in
+          
+        if (List.for_all2 est_compatible_et_mode lt l_typ) then
           AstType.Fonction(info,l_info,nli)
         else
-          raise (TypesParametresInattendus(l_typ, lt))   
+          let l_t = List.map (fun (t, _)-> t) l_typ in
+          let l_tt = List.map (fun (t, _)-> t) lt in
+          raise (TypesParametresInattendus(l_t, l_tt))   
     | _ -> raise (MauvaiseUtilisationIdentifiant("error"))      
 
 (* Analyse d’une liste de fonctions *)
@@ -286,8 +347,9 @@ let analyse_type_fonctions lf =
 let analyse_type_programme (AstTds.Programme(fonctions, prog)) = 
   (* Préparation des types de fonctions avant analyse *)
   let preparer_fonction (AstTds.Fonction(t,info,lp,_)) =
-    let l_typ = List.map (fun (t,_) -> t) lp in
-    modifier_type_fonction t l_typ info
+    (* On récupère le couple (type, est_ref) pour mettre à jour la signature dans la TDS *)
+    let l_typ_et_ref = List.map (fun (ty, _, is_ref) -> (ty, is_ref)) lp in
+    modifier_type_fonction t l_typ_et_ref info
   in
   List.iter preparer_fonction fonctions;
 
