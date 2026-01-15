@@ -1,7 +1,0 @@
-rat * getNull () {
-  return null;
-}
-
-main {
-  rat * z = getNull();
-}

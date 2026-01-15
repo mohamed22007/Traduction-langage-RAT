@@ -1,7 +1,0 @@
-enum Mois {Janvier, Fevrier, Mars, Avril, Mai, Juin, Juillet , Aout, Septembre, Octobre, Novembre, Decembre};
-enum Jour {Lundi, Mars, Mercredi, Jeudi, Vendredi, Samedi, Dimanche};
-
-test{
-    Mois x = Janvier;
-    Jour y = Lundi;
-}

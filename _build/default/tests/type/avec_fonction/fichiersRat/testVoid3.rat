@@ -1,9 +1,0 @@
-int afficher(int y){
-    return;
-}
-
-main{
-    int x = 5;
-    afficher(5);
-    afficher(x);
-}
