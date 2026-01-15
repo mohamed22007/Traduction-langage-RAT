@@ -1,0 +1,13 @@
+void afficher(int x){
+    print(x);
+}
+
+void afficher(rat y){
+    print(y);
+}
+
+main{
+    int x = 5;
+    afficher(5);
+    afficher(x);
+}

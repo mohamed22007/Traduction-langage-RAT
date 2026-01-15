@@ -1,0 +1,8 @@
+int * badFunc () {
+  int b = 4;
+  return b;
+}
+
+main {
+  int * ptr = badFunc();
+}

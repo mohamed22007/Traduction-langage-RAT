@@ -1,0 +1,15 @@
+main {
+    int x = 1;       
+    int * px = &x; 
+    rat y = [1/2];  
+    rat * py = &y;  
+
+    if (x < 2) {
+       bool * pb = null;
+       int z = 3;
+    } else {
+       int * pz = null; 
+    }
+    
+    int final = 10;   
+}

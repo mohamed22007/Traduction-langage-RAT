@@ -1,0 +1,7 @@
+int f(int x) {
+  return x;
+}
+
+main {
+  int* p = &f;
+}

@@ -1,0 +1,7 @@
+void afficher(int y){
+    return;
+}
+
+main{
+    int x = afficher(5);
+}

@@ -1,0 +1,9 @@
+int aff (int * p) {
+  print (*p);
+  return 0 ;
+}
+
+main {
+  int a = 3;
+  int z = aff(a);
+}
